@@ -32,7 +32,81 @@ The 'type' name used in config/rules.yaml is the snake_case class name:
   RangeRule      → range_rule
   CoordinateRule → coordinate_rule
   DateFormatRule → date_format_rule
+"""
+#### Task 1 implementation ####
 
+from validify.core.base import BaseValidator
+
+
+class NullCheckRule(BaseValidator):
+    def __init__(self, field: str):
+        self.field = field
+
+    def validate(self, record: dict) -> bool:
+        value = record.get(self.field, "")
+        return value not in (None, "", " ")
+
+    @property
+    def message(self) -> str:
+        return f"{self.field} must not be null"
+
+
+class RangeRule(BaseValidator):
+
+    def __init__(self, field: str, min_value: float, max_value: float):
+        self.field = field
+        self.min = min_value
+        self.max = max_value
+
+    def validate(self, record: dict) -> bool:
+        try:
+            value = float(record[self.field])
+        except (KeyError, ValueError, TypeError):
+            return False
+        return self.min <= value <= self.max
+
+    @property
+    def message(self) -> str:
+        return f"{self.field} must be between {self.min} and {self.max}"
+
+
+class CoordinateRule(BaseValidator):
+
+    def __init__(self, field: str, min_value: float, max_value: float):
+        self.field = field
+        self.min = min_value
+        self.max = max_value
+
+    def validate(self, record: dict) -> bool:
+        try:
+            coord = float(record[self.field])
+        except (KeyError, ValueError, TypeError):
+            return False
+        return self.min <= coord <= self.max
+
+    @property
+    def message(self) -> str:
+        return f"{self.field} is outside valid coordinate range ({self.min}, {self.max})"
+
+class AllowedValuesRule(BaseValidator):
+    def __init__(self, field: str, allowed: list[str]):
+        self.field = field
+        self.allowed = allowed
+        self._message = ""  
+    
+    def validate(self, record: dict) -> bool:
+        value = str(record.get(self.field, "")).strip()
+        if value not in self.allowed:
+            self._message = (
+                f"{self.field}: '{value}' is not one of {self.allowed}"
+            )
+            return False
+        return True
+
+    @property
+    def message(self) -> str:
+        return self._message
+"""
 ─────────────────────────────────────────────────────────
 DAY 3 TASK — add RegexRule and RuleFactory
 ─────────────────────────────────────────────────────────
@@ -57,12 +131,12 @@ On a feature branch, add RegexRule if not done yet, confirm it is
 registered and works via a unit test, then merge back to main.
 """
 
-import re  # noqa: F401 — needed by RegexRule
-import yaml  # noqa: F401 — needed by RuleFactory
+# import re  # noqa: F401 — needed by RegexRule
+# import yaml  # noqa: F401 — needed by RuleFactory
 
-from validify.core.base import BaseValidator  # noqa: F401
-from validify.core.exceptions import ConfigError  # noqa: F401
-from validify.rules.registry import ValidatorRegistry  # noqa: F401
+# from validify.core.base import BaseValidator  # noqa: F401
+# from validify.core.exceptions import ConfigError  # noqa: F401
+# from validify.rules.registry import ValidatorRegistry  # noqa: F401
 
 
 # ---------------------------------------------------------------------------

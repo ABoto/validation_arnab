@@ -16,6 +16,26 @@ Fields:
   passed  (bool) — True if the check succeeded
   message (str)  — human-readable description of the failure ("" if passed)
 
+"""  
+#### Task 1 immplementation ####
+
+class ValidationResult:
+      def __init__(self, field, rule, passed, message):
+          self.field = field
+          self.rule = rule
+          self.passed = passed
+          self.message = message
+      
+      def __repr__(self):
+        return (
+            f"ValidationResult(field={self.field}, rule={self.rule}, "
+            f"passed={self.passed}, message={self.message!r})"
+        )
+
+
+
+
+"""
 ─────────────────────────────────────────────────────────
 DAY 2 TASK
 ─────────────────────────────────────────────────────────

@@ -27,7 +27,35 @@ Implement BaseValidator(ABC):
 
 Note: every concrete rule (NullCheckRule, RangeRule …) stores the target
 field name in self.field. You will set this in each rule's __init__.
+"""
+#### Task 1 implimentation ####
 
+from abc import abstractmethod, ABC
+from .models import ValidationResult
+
+class BaseValidator(ABC):
+
+    @abstractmethod
+    def validate(self, record: dict) -> bool:
+        pass
+
+    @property
+    @abstractmethod
+    def message(self) -> str:
+        pass
+
+    def __call__(self, record: dict) -> ValidationResult:
+        
+        passed = self.validate(record)
+        return ValidationResult(
+            field=self.field,
+            rule=type(self).__name__,
+            passed=passed,
+            message="" if passed else self.message,
+        )
+        return super().__call__(*args, **kwds)
+
+"""
 ─────────────────────────────────────────────────────────
 DAY 2 TASK
 ─────────────────────────────────────────────────────────

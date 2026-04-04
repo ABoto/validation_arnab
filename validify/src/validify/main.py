@@ -14,7 +14,90 @@ but uses the new class hierarchy:
   4. For each record, call each rule: result = rule(record)  # __call__
   5. Collect ValidationResult objects.
   6. Print a summary (same format as the starter script).
+"""
+#### Task 1 implementatoin ####
+import csv
+import sys
+from pathlib import Path
 
+from validify.rules.built_in import (
+    NullCheckRule,
+    RangeRule,
+    AllowedValuesRule,
+)
+
+
+def load_records(csv_path: Path):
+    with open(csv_path, encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            yield row
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python -m validify.main data/taxi_trips_sample.csv")
+        sys.exit(1)
+
+    csv_path = Path(sys.argv[1])
+    if not csv_path.exists():
+        print(f"Error: file not found — {csv_path}")
+        sys.exit(1)
+
+    # -----------------------
+    # Instantiate RULES (Day 1 only)
+    # -----------------------
+    rules = [
+        NullCheckRule("vendor_id"),
+        NullCheckRule("pickup_datetime"),
+        NullCheckRule("dropoff_datetime"),
+        RangeRule("passenger_count", 1, 8),
+        RangeRule("trip_distance", 0.1, 200.0),
+        RangeRule("fare_amount", 0.01, 500.0),
+        RangeRule("total_amount", 0.01, 600.0),
+        AllowedValuesRule("payment_type", ["Cash", "Card"]),
+        # Stretch rule
+        AllowedValuesRule(
+            "payment_type",
+            ["Credit", "Cash", "No Charge", "Dispute"],
+        ),
+    ]
+
+    total = 0
+    passed = 0
+    failed = 0
+
+    for record in load_records(csv_path):
+        total += 1
+
+        results = [rule(record) for rule in rules]
+        failures = [r for r in results if not r.passed]
+
+        if failures:
+            failed += 1
+        else:
+            passed += 1
+
+    # -----------------------
+    # Print summary (Day 1)
+    # -----------------------
+    print("\n============================================================")
+    print("VALIDATION REPORT")
+    print("============================================================")
+    print(f"  Total records : {total}")
+    print(f"  Passed        : {passed}")
+    print(f"  Failed        : {failed}")
+    print(f"  Pass rate     : {passed / total * 100:.1f}%")
+    print("============================================================")
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+"""
 ─────────────────────────────────────────────────────────
 DAY 2 TASK (update this file)
 ─────────────────────────────────────────────────────────
@@ -42,7 +125,7 @@ from pathlib import Path
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python src/validify/main.py <path/to/trips.csv>")
+        print("Usage: python src/validify/main.py C:/Users/YM316EV/Workspace/TestBoto/Capstone/validation_arnab/validify/data/taxi_trips_sample.csv")
         sys.exit(1)
 
     csv_path = Path(sys.argv[1])
