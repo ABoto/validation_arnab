@@ -39,9 +39,56 @@ CHECKPOINT (paste into a Python REPL to verify your work):
     print("Registry works!")
 """
 
-import re  # noqa: F401 — you will need this for snake_case conversion
+# import re  # noqa: F401 — you will need this for snake_case conversion
 
 
 # ---------------------------------------------------------------------------
 # YOUR CODE BELOW
 # ---------------------------------------------------------------------------
+
+
+# from typing import Dict, Type
+
+# class ValidatorRegistry:
+#     _registry: Dict[str, Type] = {}
+
+#     def __init_subclass__(cls, **kwargs):
+#         super().__init_subclass__(**kwargs)
+#         name = cls.__name__
+#         snake = ""
+
+#         for i, ch in enumerate(name):
+#             if ch.isupper() and i > 0:
+#                 snake += "_" + ch.lower()
+#             else:
+#                 snake += ch.lower()
+
+#         ValidatorRegistry._registry[snake] = cls
+
+#     @classmethod
+#     def get(cls, name: str) -> Type:
+#         if name not in cls._registry:
+#             raise KeyError(f"Validator '{name}' not found in registry.")
+#         return cls._registry[name]
+
+import re
+from typing import Dict, Type
+
+
+class ValidatorRegistry:
+    _registry: Dict[str, Type] = {}
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        snake = re.sub(r'(?<!^)(?=[A-Z])', '_', cls.__name__).lower()
+
+        ValidatorRegistry._registry[snake] = cls
+
+    @classmethod
+    def get(cls, name: str) -> Type:
+        if name not in cls._registry:
+            raise KeyError(
+                f"Validator '{name}' not found in registry. Available: {list(cls._registry.keys())}"
+            )
+        return cls._registry[name]

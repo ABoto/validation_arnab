@@ -30,30 +30,30 @@ field name in self.field. You will set this in each rule's __init__.
 """
 #### Task 1 implimentation ####
 
-from abc import abstractmethod, ABC
-from .models import ValidationResult
+# from abc import abstractmethod, ABC
+# from .models import ValidationResult
 
-class BaseValidator(ABC):
+# class BaseValidator(ABC):
 
-    @abstractmethod
-    def validate(self, record: dict) -> bool:
-        pass
+#     @abstractmethod
+#     def validate(self, record: dict) -> bool:
+#         pass
 
-    @property
-    @abstractmethod
-    def message(self) -> str:
-        pass
+#     @property
+#     @abstractmethod
+#     def message(self) -> str:
+#         pass
 
-    def __call__(self, record: dict) -> ValidationResult:
+#     def __call__(self, record: dict) -> ValidationResult:
         
-        passed = self.validate(record)
-        return ValidationResult(
-            field=self.field,
-            rule=type(self).__name__,
-            passed=passed,
-            message="" if passed else self.message,
-        )
-        return super().__call__(*args, **kwds)
+#         passed = self.validate(record)
+#         return ValidationResult(
+#             field=self.field,
+#             rule=type(self).__name__,
+#             passed=passed,
+#             message="" if passed else self.message,
+#         )
+#         return super().__call__(*args, **kwds)
 
 """
 ─────────────────────────────────────────────────────────
@@ -71,10 +71,32 @@ This makes every subclass of BaseValidator automatically register itself.
 """
 
 from abc import ABC, abstractmethod
-
+from validify.rules.registry import ValidatorRegistry
 from validify.core.models import ValidationResult  # noqa: F401
 
 
 # ---------------------------------------------------------------------------
 # YOUR CODE BELOW
 # ---------------------------------------------------------------------------
+
+
+
+class BaseValidator(ValidatorRegistry, ABC):
+
+    @abstractmethod
+    def validate(self, record: dict) -> bool:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def message(self) -> str:
+        raise NotImplementedError
+
+    def __call__(self, record: dict) -> ValidationResult:
+        passed = self.validate(record)
+        return ValidationResult(
+            field=self.field,
+            rule=type(self).__name__,
+            passed=passed,
+            message="" if passed else self.message,
+        )

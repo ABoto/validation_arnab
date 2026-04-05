@@ -15,6 +15,9 @@ Usage:
     def run_validation(records, rules):
         ...
 
+""" 
+
+"""
 ─────────────────────────────────────────────────────────
 DAY 2 TASK — Part B (stretch)
 ─────────────────────────────────────────────────────────
@@ -36,11 +39,37 @@ HINTS
   - A decorator is just a function that takes a function and returns a function.
 """
 
-import functools  # noqa: F401
+from functools import wraps  # noqa: F401
 import time  # noqa: F401
 from typing import Any, Callable, TypeVar  # noqa: F401
 
 F = TypeVar("F", bound=Callable[..., Any])
+
+
+def timeit(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = fn(*args, **kwargs)
+        end = time.perf_counter()
+        duration = end - start
+        print(f"[timeit] {fn.__name__} took {duration:.4f}s")
+        return result
+
+    return wrapper
+
+
+def log_call(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        print(f"[log_call] Calling: {fn.__name__}")
+        print(f"  args: {args}")
+        print(f"  kwargs: {kwargs}")
+        result = fn(*args, **kwargs)
+        print(f"[log_call] {fn.__name__} returned: {result}")
+        return result
+
+    return wrapper
 
 
 # ---------------------------------------------------------------------------

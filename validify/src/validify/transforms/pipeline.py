@@ -53,3 +53,51 @@ T = TypeVar("T")
 # ---------------------------------------------------------------------------
 # YOUR CODE BELOW
 # ---------------------------------------------------------------------------
+# from functools import reduce
+# from typing import Callable, Iterator, TypeVar
+
+# T = TypeVar("T")
+
+
+def pipe(*fns: Callable[[T], T]) -> Callable[[T], T]:
+    """
+    Creates a pipeline of functions.
+    pipe(f, g)(x) == g(f(x))
+    """
+
+    def _pipe(value: T) -> T:
+        return reduce(lambda acc, fn: fn(acc), fns, value)
+
+    return _pipe
+
+
+def normalize_record(record: dict) -> dict:
+    """Strips whitespace from every string field in a dict."""
+    cleaned = {}
+    for key, value in record.items():
+        if isinstance(value, str):
+            cleaned[key] = value.strip()
+        else:
+            cleaned[key] = value
+    return cleaned
+
+class DatasetLoader:
+    """Context manager that yields CSV records as a generator."""
+
+    def __init__(self, path: str):
+        self.path = path
+        self.file = None
+        self.reader = None
+
+    def __enter__(self) -> Iterator[dict]:
+        try:
+            self.file = open(self.path, "r", encoding="utf-8")
+            self.reader = csv.DictReader(self.file)
+            return self.reader      # ✅ return an iterator (generator)
+        except Exception as e:
+            raise DataLoadError(f"Failed to load dataset: {e}")
+
+    def __exit__(self, exc_type, exc, traceback):
+        if self.file:
+            self.file.close()
+        return False  # ✅ do not suppress exceptions

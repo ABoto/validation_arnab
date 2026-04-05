@@ -35,77 +35,79 @@ The 'type' name used in config/rules.yaml is the snake_case class name:
 """
 #### Task 1 implementation ####
 
-from validify.core.base import BaseValidator
+# from validify.core.base import BaseValidator
 
 
-class NullCheckRule(BaseValidator):
-    def __init__(self, field: str):
-        self.field = field
+# class NullCheckRule(BaseValidator):
+#     def __init__(self, field: str):
+#         self.field = field
 
-    def validate(self, record: dict) -> bool:
-        value = record.get(self.field, "")
-        return value not in (None, "", " ")
-
-    @property
-    def message(self) -> str:
-        return f"{self.field} must not be null"
-
-
-class RangeRule(BaseValidator):
-
-    def __init__(self, field: str, min_value: float, max_value: float):
-        self.field = field
-        self.min = min_value
-        self.max = max_value
-
-    def validate(self, record: dict) -> bool:
-        try:
-            value = float(record[self.field])
-        except (KeyError, ValueError, TypeError):
-            return False
-        return self.min <= value <= self.max
-
-    @property
-    def message(self) -> str:
-        return f"{self.field} must be between {self.min} and {self.max}"
-
-
-class CoordinateRule(BaseValidator):
-
-    def __init__(self, field: str, min_value: float, max_value: float):
-        self.field = field
-        self.min = min_value
-        self.max = max_value
-
-    def validate(self, record: dict) -> bool:
-        try:
-            coord = float(record[self.field])
-        except (KeyError, ValueError, TypeError):
-            return False
-        return self.min <= coord <= self.max
-
-    @property
-    def message(self) -> str:
-        return f"{self.field} is outside valid coordinate range ({self.min}, {self.max})"
-
-class AllowedValuesRule(BaseValidator):
-    def __init__(self, field: str, allowed: list[str]):
-        self.field = field
-        self.allowed = allowed
-        self._message = ""  
     
-    def validate(self, record: dict) -> bool:
-        value = str(record.get(self.field, "")).strip()
-        if value not in self.allowed:
-            self._message = (
-                f"{self.field}: '{value}' is not one of {self.allowed}"
-            )
-            return False
-        return True
+#     def validate(self, record: dict) -> bool:
+#         value = record.get(self.field, "")
+#         return value not in (None, "", " ")
 
-    @property
-    def message(self) -> str:
-        return self._message
+#     @property
+#     def message(self) -> str:
+#         return f"{self.field} must not be null"
+
+
+# class RangeRule(BaseValidator):
+
+#     def __init__(self, field: str, min_value: float, max_value: float):
+#         self.field = field
+#         self.min = min_value
+#         self.max = max_value
+
+#     def validate(self, record: dict) -> bool:
+#         try:
+#             value = float(record[self.field])
+#         except (KeyError, ValueError, TypeError):
+#             return False
+#         return self.min <= value <= self.max
+
+#     @property
+#     def message(self) -> str:
+#         return f"{self.field} must be between {self.min} and {self.max}"
+
+
+# class CoordinateRule(BaseValidator):
+
+#     def __init__(self, field: str, min_value: float, max_value: float):
+#         self.field = field
+#         self.min = min_value
+#         self.max = max_value
+
+#     def validate(self, record: dict) -> bool:
+#         try:
+#             coord = float(record[self.field])
+#         except (KeyError, ValueError, TypeError):
+#             return False
+#         return self.min <= coord <= self.max
+
+#     @property
+#     def message(self) -> str:
+#         return f"{self.field} is outside valid coordinate range ({self.min}, {self.max})"
+
+# class AllowedValuesRule(BaseValidator):
+#     def __init__(self, field: str, allowed: list[str]):
+#         self.field = field
+#         self.allowed = allowed
+#         self._message = ""  
+    
+#     def validate(self, record: dict) -> bool:
+#         value = str(record.get(self.field, "")).strip()
+#         if value not in self.allowed:
+#             self._message = (
+#                 f"{self.field}: '{value}' is not one of {self.allowed}"
+#             )
+#             return False
+#         return True
+
+#     @property
+#     def message(self) -> str:
+#         return self._message
+
 """
 ─────────────────────────────────────────────────────────
 DAY 3 TASK — add RegexRule and RuleFactory
@@ -142,3 +144,141 @@ registered and works via a unit test, then merge back to main.
 # ---------------------------------------------------------------------------
 # YOUR CODE BELOW
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# DAY 3 RULE IMPLEMENTATIONS
+# ---------------------------------------------------------------------------
+
+import re
+import yaml
+from validify.core.base import BaseValidator
+from validify.rules.registry import ValidatorRegistry
+
+
+# ===========================
+#  NullCheckRule
+# ===========================
+class NullCheckRule(BaseValidator):
+    def __init__(self, field: str):
+        self.field = field
+
+    def validate(self, record: dict) -> bool:
+        value = record.get(self.field, "")
+        return value not in (None, "", " ", "\t", "\n")
+
+    @property
+    def message(self) -> str:
+        return f"{self.field} must not be null"
+
+
+# ===========================
+#  RangeRule
+# ===========================
+class RangeRule(BaseValidator):
+    def __init__(self, field: str, min: float, max: float):
+        self.field = field
+        self.min = min
+        self.max = max
+
+    def validate(self, record: dict) -> bool:
+        try:
+            value = float(record[self.field])
+        except Exception:
+            return False
+        return self.min <= value <= self.max
+
+    @property
+    def message(self) -> str:
+        return f"{self.field} must be between {self.min} and {self.max}"
+
+
+# ===========================
+# CoordinateRule
+# ===========================
+class CoordinateRule(BaseValidator):
+    def __init__(self, field: str, min: float, max: float):
+        self.field = field
+        self.min = min
+        self.max = max
+
+    def validate(self, record: dict) -> bool:
+        try:
+            coord = float(record[self.field])
+        except Exception:
+            return False
+        return self.min <= coord <= self.max
+
+    @property
+    def message(self) -> str:
+        return f"{self.field} must be in range [{self.min}, {self.max}]"
+
+
+# ===========================
+#  RegexRule
+# ===========================
+class RegexRule(BaseValidator):
+    def __init__(self, field: str, pattern: str):
+        self.field = field
+        self.pattern = pattern
+        self._msg = ""
+
+    def validate(self, record: dict) -> bool:
+        value = str(record.get(self.field, ""))
+        if not re.fullmatch(self.pattern, value):
+            self._msg = f"{self.field}: '{value}' does not match pattern '{self.pattern}'"
+            return False
+        return True
+
+    @property
+    def message(self) -> str:
+        return self._msg
+
+
+# ===========================
+#  DateFormatRule
+# ===========================
+from datetime import datetime
+
+class DateFormatRule(BaseValidator):
+    def __init__(self, field: str, fmt: str = "%Y-%m-%d %H:%M:%S"):
+        self.field = field
+        self.fmt = fmt
+        self._msg = ""
+
+    def validate(self, record: dict) -> bool:
+        value = record.get(self.field, "")
+        try:
+            datetime.strptime(value, self.fmt)
+            return True
+        except Exception:
+            self._msg = (
+                f"{self.field}: '{value}' does not match datetime format '{self.fmt}'"
+            )
+            return False
+
+    @property
+    def message(self) -> str:
+        return self._msg
+
+
+# ===========================
+#  RuleFactory
+# ===========================
+class RuleFactory:
+    @staticmethod
+    def from_config(path: str):
+        with open(path, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+
+        rule_items = config["rules"]
+        instances = []
+
+        for entry in rule_items:
+            rule_type = entry["type"]  # e.g., 'null_check_rule'
+
+            RuleClass = ValidatorRegistry.get(rule_type)
+
+            params = {k: v for k, v in entry.items() if k not in ("type", "name")}
+
+            instances.append(RuleClass(**params))
+
+        return instances

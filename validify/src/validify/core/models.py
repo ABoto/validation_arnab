@@ -19,18 +19,18 @@ Fields:
 """  
 #### Task 1 immplementation ####
 
-class ValidationResult:
-      def __init__(self, field, rule, passed, message):
-          self.field = field
-          self.rule = rule
-          self.passed = passed
-          self.message = message
+# class ValidationResult:
+#       def __init__(self, field, rule, passed, message):
+#           self.field = field
+#           self.rule = rule
+#           self.passed = passed
+#           self.message = message
       
-      def __repr__(self):
-        return (
-            f"ValidationResult(field={self.field}, rule={self.rule}, "
-            f"passed={self.passed}, message={self.message!r})"
-        )
+#       def __repr__(self):
+#         return (
+#             f"ValidationResult(field={self.field}, rule={self.rule}, "
+#             f"passed={self.passed}, message={self.message!r})"
+#         )
 
 
 
@@ -60,7 +60,37 @@ Hint: import dataclass and field from the dataclasses module.
 
 from dataclasses import dataclass, field  # noqa: F401 — you will need these
 
+#### Task 2 immplementation ####
 
-# ---------------------------------------------------------------------------
-# YOUR CODE BELOW
-# ---------------------------------------------------------------------------
+from typing import Dict, List
+
+@dataclass
+class ValidationResult:
+    field: str
+    rule: str
+    passed: bool
+    message: str
+
+
+@dataclass
+class DataRecord:
+    row_number: int
+    fields: Dict[str, str]
+
+@dataclass
+class Report:
+      total   : int
+      passed  : int
+      failed  : int
+      results : list[ValidationResult] 
+
+
+      @property
+      def pass_rate(self) -> float:
+           if self.total == 0:
+                return 0.0
+           return (self.passed/self.total) * 100
+
+
+
+        
