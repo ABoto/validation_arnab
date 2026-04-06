@@ -47,3 +47,65 @@ from validify.core.models import ValidationResult  # noqa: F401
 # ---------------------------------------------------------------------------
 # YOUR CODE BELOW
 # ---------------------------------------------------------------------------
+
+from typing import Iterable, List
+from validify.utils.decorators import timeit
+
+
+@timeit
+def run_sequential(records: Iterable[dict], rules: Iterable[BaseValidator]) -> List[ValidationResult]:
+    """
+    Runs validations in a simple sequential loop.
+    This is the baseline implementation (Day 4 requirement).
+    """
+    results: List[ValidationResult] = []
+
+    for record in records:
+        for rule in rules:
+            results.append(rule(record))
+
+    return results
+
+
+@timeit
+def run_threaded(records: Iterable[dict], rules: Iterable[BaseValidator], workers: int = 4) -> List[ValidationResult]:
+    """
+    Runs validations in parallel using ThreadPoolExecutor.
+    Each record is validated in a separate worker thread.
+    """
+
+    results: List[ValidationResult] = []
+    lock = Lock()   # ensures thread-safe writes to shared list
+
+    def process_record(record: dict):
+        row_results = [rule(record) for rule in rules]
+        with lock:
+            results.extend(row_results)
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        for record in records:
+            executor.submit(process_record, record)
+
+    return results
+
+
+# -------------------------------------------------------------------------
+# Stretch Goal (Optional): ASYNC Runner
+# -------------------------------------------------------------------------
+
+async def run_async(records: Iterable[dict], rules: Iterable[BaseValidator]) -> List[ValidationResult]:
+    """
+    OPTIONAL (Day‑4 Stretch): Run validations using asyncio.gather.
+    Note: This only helps if rules are I/O-bound.
+    """
+
+    async def validate_row(record):
+        return [rule(record) for rule in rules]
+
+    tasks = [asyncio.create_task(validate_row(record)) for record in records]
+
+    grouped_results = await asyncio.gather(*tasks)
+
+    # flatten list[list[ValidationResult]] → list[ValidationResult]
+    results = [item for group in grouped_results for item in group]
+    return results

@@ -179,9 +179,9 @@ def main() -> None:
         results = []
         preprocess = pipe(normalize_record)
 
-        with DatasetLoader(csv_path) as records:   # ✅ generator
+        with DatasetLoader(csv_path) as records: 
             for record in records:
-                record = preprocess(record)        # ✅ cleaned record
+                record = preprocess(record)       
                 for rule in rules:
                     results.append(rule(record))
 
