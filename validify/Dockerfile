@@ -29,19 +29,19 @@ WORKDIR /app
 # TODO (Day 5 — complete these lines):
 #
 # 1. Copy installed packages from builder:
-#    COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-#    COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+   COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+   COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 #
 # 2. Copy application source:
-#    COPY src/ src/
-#    COPY config/ config/
+   COPY src/ src/
+   COPY config/ config/
 #
 # 3. Create a non-root user and switch to it:
-#    RUN useradd -m appuser
-#    USER appuser
+   RUN useradd -m appuser
+   USER appuser
 #
 # 4. Expose the port and set the startup command:
-#    EXPOSE 8000
-#    CMD ["uvicorn", "validify.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+   EXPOSE 8000
+   CMD ["uvicorn", "validify.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
 
 EXPOSE 8000

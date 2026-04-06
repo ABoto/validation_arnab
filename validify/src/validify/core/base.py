@@ -69,6 +69,7 @@ This makes every subclass of BaseValidator automatically register itself.
 
 ─────────────────────────────────────────────────────────
 """
+from typing import Dict
 
 from abc import ABC, abstractmethod
 from validify.rules.registry import ValidatorRegistry

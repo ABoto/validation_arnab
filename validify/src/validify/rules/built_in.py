@@ -150,6 +150,8 @@ registered and works via a unit test, then merge back to main.
 
 import re
 import yaml
+from typing import Dict
+
 from validify.core.base import BaseValidator
 from validify.rules.registry import ValidatorRegistry
 

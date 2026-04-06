@@ -13,33 +13,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      # -----------------------------------------------------------------------
-      # TODO (Day 5): replace each "echo TODO" with the real command
-      # -----------------------------------------------------------------------
-
+      # -----------------------------------------------------------
+      # ✅ Lint with ruff
+      # -----------------------------------------------------------
       - name: Lint
         run: |
-          # ruff check src/ tests/
-          echo "TODO: run ruff"
+          ruff check src tests
 
+      # -----------------------------------------------------------
+      # ✅ Type check with mypy
+      # -----------------------------------------------------------
       - name: Type check
         run: |
-          # mypy src/
-          echo "TODO: run mypy"
+          mypy src/
 
+      # -----------------------------------------------------------
+      # ✅ Run tests with coverage
+      # -----------------------------------------------------------
       - name: Test
         run: |
-          # pytest --cov=src/validify --cov-fail-under=70 --cov-report=term-missing
-          echo "TODO: run pytest"
+          pytest --cov=src/validify --cov-report=term-missing --cov-fail-under=70
 
+      # -----------------------------------------------------------
+      # ✅ Docker build (CI test build only)
+      # -----------------------------------------------------------
       - name: Build Docker image
         run: |
-          # docker build -t validify:ci .
-          echo "TODO: docker build"
+          docker build -t validify:ci .
