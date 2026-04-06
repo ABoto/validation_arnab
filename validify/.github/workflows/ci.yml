@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "feature/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      # -----------------------------------------------------------
+      # ✅ Lint with ruff
+      # -----------------------------------------------------------
+      - name: Lint
+        run: |
+          ruff check src tests
+
+      # -----------------------------------------------------------
+      # ✅ Type check with mypy
+      # -----------------------------------------------------------
+      # - name: Type check
+      #   run: |
+      #     mypy src/
+
+      # -----------------------------------------------------------
+      # ✅ Run tests with coverage
+      # -----------------------------------------------------------
+      - name: Test
+        run: |
+          pytest --cov=src/validify --cov-report=term-missing --cov-fail-under=10
+
+      # -----------------------------------------------------------
+      # ✅ Docker build (CI test build only)
+      # -----------------------------------------------------------
+      - name: Build Docker image
+        run: |
+          docker build -t validify:ci .
